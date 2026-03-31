@@ -92,29 +92,27 @@ export default function Review() {
     setPromoCode(newPromo);
 
     try {
-      const response = await fetch("/api/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          type: "FEEDBACK",
-          apartmentId: host?.object_id,
-          rating: overallRating, 
-          detailedRatings: ratings,
-          liked, 
-          disliked, 
-          guestName,
-          promoCode: newPromo
-        }),
-      });
+      // Отправляем данные напрямую в Supabase, минуя несуществующий API
+      const { error } = await supabase
+        .from("checkouts")
+        .insert([{ 
+          host_id: host?.id,         // ID квартиры/хоста
+          rating: overallRating,     // Общая оценка
+          guest_name: guestName,     // Имя гостя
+          liked: liked,              // Что понравилось
+          disliked: disliked,        // Что не понравилось
+          promo_code: newPromo       // Сгенерированный промокод
+        }]);
 
-      if (response.ok) {
-        setState("success");
-      } else {
-        throw new Error("Failed to submit");
+      if (error) {
+        console.error("Ошибка Supabase:", error);
+        throw new Error("Failed to submit to database");
       }
+
+      setState("success");
     } catch (error) {
       console.error(error);
-      alert("Что-то пошло не так. Пожалуйста, попробуйте еще раз.");
+      alert("Что-то пошло не так при сохранении в базу. Пожалуйста, попробуйте еще раз.");
       setState("form");
     }
   };
