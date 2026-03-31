@@ -167,25 +167,36 @@ export default function Dashboard() {
       if (photos.length > 0) {
         setUploadProgress({ current: 0, total: photos.length });
         for (let i = 0; i < photos.length; i++) {
-          setUploadProgress({ current: i + 1, total: photos.length });
           const file = photos[i];
           const fileExt = file.name.split('.').pop();
           const fileName = `${host.object_id}/${Date.now()}-${i}.${fileExt}`;
           
+          console.log(`Загружаем файл ${i + 1} в Storage...`);
+
           const { error: uploadError } = await supabase.storage
             .from('checkout-photos')
             .upload(fileName, file);
 
-          if (!uploadError) {
-            const { data: { publicUrl } } = supabase.storage
+          if (uploadError) {
+            console.error("Ошибка загрузки фото в Storage:", uploadError.message);
+          } else {
+            // Получаем ссылку
+            const { data } = supabase.storage
               .from('checkout-photos')
               .getPublicUrl(fileName);
-            photoUrls.push(publicUrl);
+            
+            if (data?.publicUrl) {
+              photoUrls.push(data.publicUrl);
+              console.log("Успех! Ссылка получена:", data.publicUrl);
+            }
           }
+          setUploadProgress({ current: i + 1, total: photos.length });
         }
       }
 
-      // 2. Сохранение в базу (Исправленные названия полей)
+      console.log("Массив ссылок перед отправкой в базу:", photoUrls);
+
+      // 2. Сохранение в базу
       const { error: insertError } = await supabase
         .from("checkouts")
         .insert([
@@ -199,14 +210,17 @@ export default function Dashboard() {
           },
         ]);
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error("Ошибка вставки в базу:", insertError.message);
+        throw insertError;
+      }
 
       localStorage.setItem(`checkout_${apartmentId}`, "completed");
       setCheckoutStatus("completed");
       navigate(`/app/${apartmentId}/success`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Checkout failed:", error);
-      alert("Ошибка при сохранении. Убедитесь, что вы добавили колонки 'checklist' и 'type' в таблицу checkouts.");
+      alert(`Ошибка при сохранении: ${error.message || "Проверьте консоль F12"}`);
     } finally {
       setIsSubmitting(false);
       setUploadProgress(null);
