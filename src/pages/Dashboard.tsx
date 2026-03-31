@@ -173,40 +173,59 @@ export default function Dashboard() {
   const handleCheckout = async () => {
     setIsSubmitting(true);
     try {
-      // 1. Send text report
-      const response = await fetch("/api/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "CHECKOUT",
-          apartmentId: host.object_id
-        }),
-      });
+      const photoUrls: string[] = [];
 
-      if (!response.ok) throw new Error("Failed to send report");
+      // 1. Загружаем фото в Supabase Storage
+      if (photos.length > 0) {
+        setUploadProgress({ current: 0, total: photos.length });
+        
+        for (let i = 0; i < photos.length; i++) {
+          setUploadProgress({ current: i + 1, total: photos.length });
+          const file = photos[i];
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${host.object_id}/${Date.now()}-${i}.${fileExt}`;
+          const filePath = fileName;
 
-      // 2. Send photos in a loop
-      setUploadProgress({ current: 0, total: photos.length });
-      for (let i = 0; i < photos.length; i++) {
-        setUploadProgress({ current: i + 1, total: photos.length });
-        const formData = new FormData();
-        formData.append("photo", photos[i]);
-        formData.append("apartmentId", host.object_id);
+          const { error: uploadError } = await supabase.storage
+            .from('checkout-photos') // Имя вашего бакета
+            .upload(filePath, file);
 
-        const photoResponse = await fetch("/api/upload-photo", {
-          method: "POST",
-          body: formData,
-        });
+          if (uploadError) {
+            console.error("Ошибка загрузки фото:", uploadError);
+            continue;
+          }
 
-        if (!photoResponse.ok) console.error(`Failed to upload photo ${i + 1}`);
+          // Получаем публичную ссылку на фото
+          const { data: { publicUrl } } = supabase.storage
+            .from('checkout-photos')
+            .getPublicUrl(filePath);
+          
+          photoUrls.push(publicUrl);
+        }
       }
 
+      // 2. Сохраняем данные выезда в таблицу 'checkouts'
+      const { error: insertError } = await supabase
+        .from("checkouts")
+        .insert([
+          {
+            apartment_id: host.object_id,
+            checklist: checklist,
+            photos: photoUrls,
+            type: "CHECKOUT",
+            created_at: new Date().toISOString(),
+          },
+        ]);
+
+      if (insertError) throw insertError;
+
+      // 3. Успех
       localStorage.setItem(`checkout_${apartmentId}`, "completed");
       setCheckoutStatus("completed");
       navigate(`/app/${apartmentId}/success`);
     } catch (error) {
       console.error("Checkout failed:", error);
-      alert("Произошла ошибка при отправке отчета. Пожалуйста, попробуйте еще раз.");
+      alert("Произошла ошибка при сохранении данных. Проверьте соединение и попробуйте снова.");
     } finally {
       setIsSubmitting(false);
       setUploadProgress(null);
