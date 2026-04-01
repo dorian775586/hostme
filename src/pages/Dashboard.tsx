@@ -300,16 +300,18 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Кнопка выезда */}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => setShowCheckout(true)}
-          className="w-full bg-slate-900 text-white py-6 rounded-[2rem] font-bold text-lg shadow-lg flex items-center justify-center gap-3"
-        >
-          <LogOut className="w-6 h-6" />
-          Оформить выезд
-        </motion.button>
+        {/* Кнопка выезда (изменено для управления через бот) */}
+        {host.show_checkout !== false && (
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setShowCheckout(true)}
+            className="w-full bg-slate-900 text-white py-6 rounded-[2rem] font-bold text-lg shadow-lg flex items-center justify-center gap-3"
+          >
+            <LogOut className="w-6 h-6" />
+            Оформить выезд
+          </motion.button>
+        )}
       </div>
 
       {/* Модалка выезда */}
