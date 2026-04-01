@@ -97,8 +97,9 @@ export default function Review() {
         .from("checkouts")
         .insert([{ 
           host_id: host?.id,         // ID квартиры/хоста
+          type: "REVIEW",            // Тип события для бота
           rating: overallRating,     // Общая оценка
-          guest_name: guestName,     // Имя гостя
+          guest_name: guestName || "Аноним", // Имя гостя или заглушка
           liked: liked,              // Что понравилось
           disliked: disliked,        // Что не понравилось
           promo_code: newPromo       // Сгенерированный промокод
