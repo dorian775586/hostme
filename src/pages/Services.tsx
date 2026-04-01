@@ -72,31 +72,36 @@ export default function Services() {
     );
   }
 
+  // ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ
   const handlePurchase = async () => {
-    if (!selectedService) return;
+    if (!selectedService || !host) return;
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "SERVICE_PURCHASE",
-          apartmentId: host.object_id,
-          serviceName: selectedService.name,
-          price: selectedService.price
-        }),
-      });
+      // Отправляем напрямую в Supabase таблицу checkouts
+      const { error } = await supabase
+        .from("checkouts")
+        .insert([
+          {
+            host_id: host.id, // Используем внутренний ID хоста
+            type: "SERVICE_PURCHASE",
+            service_name: selectedService.name,
+            price: selectedService.price,
+            guest_name: "Гость"
+          },
+        ]);
 
-      if (response.ok) {
-        setIsSuccess(true);
-        setTimeout(() => {
-          setIsSuccess(false);
-          setSelectedService(null);
-        }, 3000);
-      }
-    } catch (error) {
-      console.error(error);
+      if (error) throw error;
+
+      // Если всё ок, показываем экран успеха
+      setIsSuccess(true);
+      setTimeout(() => {
+        setIsSuccess(false);
+        setSelectedService(null);
+      }, 3000);
+    } catch (error: any) {
+      console.error("Ошибка при заказе услуги:", error.message);
+      alert("Ошибка при отправке запроса. Пожалуйста, попробуйте снова.");
     } finally {
       setIsSubmitting(false);
     }
@@ -181,7 +186,7 @@ export default function Services() {
 
                     <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 space-y-3">
                       <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Реквизиты для оплаты</p>
-                      <p className="text-slate-700 font-medium leading-relaxed">
+                      <p className="text-slate-700 font-medium leading-relaxed whitespace-pre-line">
                         {host.payment_details || "Свяжитесь с хостом для получения реквизитов."}
                       </p>
                     </div>
