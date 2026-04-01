@@ -72,18 +72,16 @@ export default function Services() {
     );
   }
 
-  // ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ
   const handlePurchase = async () => {
     if (!selectedService || !host) return;
     setIsSubmitting(true);
 
     try {
-      // Отправляем напрямую в Supabase таблицу checkouts
       const { error } = await supabase
         .from("checkouts")
         .insert([
           {
-            host_id: host.id, // Используем внутренний ID хоста
+            host_id: host.id,
             type: "SERVICE_PURCHASE",
             service_name: selectedService.name,
             price: selectedService.price,
@@ -93,7 +91,6 @@ export default function Services() {
 
       if (error) throw error;
 
-      // Если всё ок, показываем экран успеха
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
@@ -148,9 +145,9 @@ export default function Services() {
                   <span className="text-xl font-bold text-slate-900">${service.price}</span>
                   <button 
                     onClick={() => setSelectedService(service)}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-semibold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-100"
+                    className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-100"
                   >
-                    Купить
+                    Хочу!
                   </button>
                 </div>
               </motion.div>
@@ -178,16 +175,16 @@ export default function Services() {
                   <div className="space-y-6">
                     <div className="text-center space-y-2">
                       <div className="inline-flex p-4 bg-indigo-50 rounded-3xl text-indigo-600 mb-2">
-                        <CreditCard className="w-8 h-8" />
+                        <ShoppingBag className="w-8 h-8" />
                       </div>
-                      <h2 className="text-2xl font-bold text-slate-900">Оплата услуги</h2>
+                      <h2 className="text-2xl font-bold text-slate-900">Заказ услуги</h2>
                       <p className="text-slate-500">{selectedService.name} — ${selectedService.price}</p>
                     </div>
 
                     <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 space-y-3">
-                      <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Реквизиты для оплаты</p>
+                      <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Информация об оплате</p>
                       <p className="text-slate-700 font-medium leading-relaxed whitespace-pre-line">
-                        {host.payment_details || "Свяжитесь с хостом для получения реквизитов."}
+                        {host.payment_details || "Хост предоставит реквизиты после подтверждения заказа."}
                       </p>
                     </div>
 
@@ -196,7 +193,7 @@ export default function Services() {
                       disabled={isSubmitting}
                       className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
                     >
-                      {isSubmitting ? "Обработка..." : "Я оплатил(а)"}
+                      {isSubmitting ? "Отправка..." : "Заказать"}
                       {!isSubmitting && <Send className="w-5 h-5" />}
                     </button>
                   </div>
@@ -205,8 +202,8 @@ export default function Services() {
                     <div className="inline-flex p-4 bg-green-50 rounded-full text-green-600">
                       <Check className="w-12 h-12" />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-900">Запрос отправлен!</h2>
-                    <p className="text-slate-500">Хост свяжется с вами в ближайшее время для подтверждения.</p>
+                    <h2 className="text-2xl font-bold text-slate-900">Заявка принята!</h2>
+                    <p className="text-slate-500">Хост получил ваше сообщение и скоро свяжется с вами.</p>
                   </div>
                 )}
               </motion.div>
