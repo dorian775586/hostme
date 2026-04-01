@@ -142,7 +142,7 @@ export default function Services() {
                   </div>
                 </div>
                 <div className="mt-6 flex items-center justify-between">
-                  <span className="text-xl font-bold text-slate-900">${service.price}</span>
+                  <span className="text-xl font-bold text-slate-900">{service.price} BYN</span>
                   <button 
                     onClick={() => setSelectedService(service)}
                     className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-100"
@@ -178,13 +178,13 @@ export default function Services() {
                         <ShoppingBag className="w-8 h-8" />
                       </div>
                       <h2 className="text-2xl font-bold text-slate-900">Заказ услуги</h2>
-                      <p className="text-slate-500">{selectedService.name} — ${selectedService.price}</p>
+                      <p className="text-slate-500">{selectedService.name} — {selectedService.price} BYN</p>
                     </div>
 
                     <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 space-y-3">
                       <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Информация об оплате</p>
                       <p className="text-slate-700 font-medium leading-relaxed whitespace-pre-line">
-                        {host.payment_details || "Хост предоставит реквизиты после подтверждения заказа."}
+                        {host.payment_details || "Арендодатель предоставит реквизиты после подтверждения заказа."}
                       </p>
                     </div>
 
