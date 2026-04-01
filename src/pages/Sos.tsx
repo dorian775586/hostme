@@ -64,25 +64,31 @@ export default function Sos() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!issue.trim()) return;
+    if (!issue.trim() || !host) return;
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "SOS",
-          apartmentId: host.object_id,
-          issue
-        }),
-      });
+      // Прямая запись в таблицу checkouts с типом SOS
+      const { error } = await supabase
+        .from("checkouts")
+        .insert([
+          {
+            host_id: host.id,
+            type: "SOS",
+            guest_name: "GUEST_SOS",
+            // Записываем текст проблемы в объект checklist
+            checklist: { problem: issue.trim() },
+            created_at: new Date().toISOString(),
+          },
+        ]);
 
-      if (response.ok) {
-        setIsSuccess(true);
-      }
-    } catch (error) {
-      console.error(error);
+      if (error) throw error;
+
+      // Если ошибок нет — переключаем на экран успеха
+      setIsSuccess(true);
+    } catch (error: any) {
+      console.error("SOS Submit Error:", error);
+      alert("Ошибка при отправке: " + (error.message || "Попробуйте позже"));
     } finally {
       setIsSubmitting(false);
     }
@@ -92,7 +98,10 @@ export default function Sos() {
     <div className="min-h-screen bg-[#F8FAFC] p-6 sm:p-10 font-sans">
       <div className="max-w-xl mx-auto space-y-8">
         <header className="flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="p-3 bg-white rounded-2xl shadow-sm border border-slate-200 text-slate-500 hover:text-rose-600 transition-colors">
+          <button 
+            onClick={() => navigate(-1)} 
+            className="p-3 bg-white rounded-2xl shadow-sm border border-slate-200 text-slate-500 hover:text-rose-600 transition-colors"
+          >
             <ChevronLeft className="w-6 h-6" />
           </button>
           <div>
@@ -123,6 +132,7 @@ export default function Sos() {
                     placeholder="Опишите проблему (например, нет горячей воды, сломан замок...)"
                     className="w-full p-6 bg-slate-50 border border-slate-200 rounded-3xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all outline-none min-h-[160px] resize-none text-slate-700"
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -136,8 +146,17 @@ export default function Sos() {
                       : "bg-rose-600 text-white hover:bg-rose-700 shadow-rose-100 active:scale-[0.98]"
                   )}
                 >
-                  {isSubmitting ? "Отправка..." : "Отправить SOS"}
-                  {!isSubmitting && <Send className="w-5 h-5" />}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Отправка...
+                    </>
+                  ) : (
+                    <>
+                      Отправить SOS
+                      <Send className="w-5 h-5" />
+                    </>
+                  )}
                 </button>
               </form>
             ) : (
