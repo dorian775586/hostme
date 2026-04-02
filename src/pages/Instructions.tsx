@@ -114,7 +114,7 @@ export default function Instructions() {
               to={`/app/${apartmentId}/sos`}
               className="inline-block bg-white text-indigo-600 px-6 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 transition-colors"
             >
-              Связаться с хостом
+              Связаться с арендодателем
             </Link>
           </div>
           <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
