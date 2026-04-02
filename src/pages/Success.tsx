@@ -21,7 +21,7 @@ export default function Success() {
         <div className="space-y-3">
           <h1 className="text-3xl font-bold text-slate-900">Выезд оформлен!</h1>
           <p className="text-slate-500 text-lg leading-relaxed">
-            Спасибо, что выбрали нас! Отчет и фотографии успешно отправлены хосту.
+            Спасибо, что выбрали нас! Отчет и фотографии успешно отправлены арендодателю!
           </p>
         </div>
 
