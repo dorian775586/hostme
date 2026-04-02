@@ -203,7 +203,7 @@ export default function Services() {
                       <Check className="w-12 h-12" />
                     </div>
                     <h2 className="text-2xl font-bold text-slate-900">Заявка принята!</h2>
-                    <p className="text-slate-500">Хост получил ваше сообщение и скоро свяжется с вами.</p>
+                    <p className="text-slate-500">Арендодатель получил ваше сообщение и скоро свяжется с вами.</p>
                   </div>
                 )}
               </motion.div>
