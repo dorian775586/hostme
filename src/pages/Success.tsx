@@ -28,7 +28,7 @@ export default function Success() {
         <div className="p-6 bg-slate-50 rounded-3xl space-y-2">
           <p className="text-sm text-slate-400 font-medium uppercase tracking-wider">Что дальше?</p>
           <p className="text-slate-600">
-            Пожалуйста, оставьте ключи в сейфе или на столе, как указано в инструкции.
+            Пожалуйста, оставьте ключи на столе, как указано в инструкции.
           </p>
         </div>
 
