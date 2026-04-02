@@ -171,7 +171,7 @@ export default function Sos() {
                 <div className="space-y-2">
                   <h2 className="text-3xl font-bold text-slate-900">Сообщение доставлено</h2>
                   <p className="text-slate-500 text-lg leading-relaxed">
-                    Хост получил ваше уведомление. Мы свяжемся с вами в течение 15 минут.
+                    Арендодатель получил ваше уведомление. Мы свяжемся с вами в течение 15 минут.
                   </p>
                 </div>
                 <button 
